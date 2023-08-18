@@ -46,6 +46,7 @@ Elimina un producto según su ID.
 
 
 Solicitudes de carritos
+
 POST /api/carts
 Crea un nuevo carrito de compras.
 
