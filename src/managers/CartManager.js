@@ -1,79 +1,62 @@
 const fs = require('fs');
-const path = "carritos.json";
 
 class CartManager {
     constructor() {
-        this.carts = [];
-        this.path = path;
+      this.carts = [];
+      this.path = "Carts.json";
+      this.createFile();
       }
 
+  createFile() {
+        if (!fs.existsSync(this.path)) {
+          this.saveCartsInJSON();
+  }}
 
   createCart() {
-    const newCart = {
-      id: this.generateUniqueId(),
-      products: [],
-    };
+    this.carts = this.getCarts();
+    let id = this.carts.length + 1;
+    this.carts.push({ id, products: [] });
+    this.saveCartsInJSON();
+    return true;
+  }
 
-    this.carts.push(newCart);
-    this.saveCarts();
-    return newCart;
+  getCarts() {
+    this.carts = JSON.parse(fs.readFileSync(this.path, "utf-8"));
+    return this.carts;
   }
 
   getCart(cartId) {
     try {
-        const cartData = fs.readFileSync('carts.json', 'utf8');
-        const carts = JSON.parse(cartData);
+        const carts = this.getCarts();
         return carts.find(cart => cart.id === cartId);
       } catch (error) {
-        return null;
+        this.carts = [];
       }
   }
 
-  addProductToCart(cartId, productId, quantity) {
-    const cart = this.getCart(cartId);
+  addProductToCart(cid, pid) {
+    this.carts = this.getCarts();
+    const cart = this.carts.find((cart) => cart.id === cid);
     if (!cart) {
-      throw new Error('Cart not found');
+      return false;
     }
 
-    const existingProductIndex = cart.products.findIndex(product => product.product === productId);
-    if (existingProductIndex !== -1) {
-      cart.products[existingProductIndex].quantity += quantity;
+    let product = cart.products.find((prod) => prod.product === pid);
+
+    //si el producto ya existe en el carrito seleccionado
+    if (product) {
+      product.quantity += 1;
     } else {
-      cart.products.push({ product: productId, quantity });
+      cart.products.push({ product: pid, quantity: 1 });
     }
-
-    this.saveCarts();
-    return cart.products;
+    this.saveCartsInJSON();
+    console.log("Cart updated!");
+    return true; //respuesta para el endpoint
   }
 
-  loadCarts() {
-    try {
-      const cartData = fs.readFileSync('carts.json', 'utf8');
-      return JSON.parse(cartData);
-    } catch (error) {
-      return [];
+    saveCartsInJSON() {
+      fs.writeFileSync(this.path, JSON.stringify(this.carts));
     }
   }
-
-  saveCarts() {
-    try {
-        const cartData = fs.readFileSync('carts.json', 'utf8');
-        const carts = JSON.parse(cartData);
-        carts.push(cart);
-        fs.writeFileSync('carts.json', JSON.stringify(carts, null, 2));
-      } catch (error) {
-        const carts = [cart];
-        fs.writeFileSync('carts.json', JSON.stringify(carts, null, 2));
-      }  
-    }
-
-  generateUniqueId() {
-    return Math.random().toString(36).substr(2, 9);
-  }
-}
 
 module.exports = CartManager;
-
-  
- 
-

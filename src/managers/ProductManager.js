@@ -3,7 +3,7 @@ const fs = require('fs');
 class ProductManager {
   constructor(path) {
     this.products = [];
-    this.path = '../productos.json';
+    this.path = './productos.json';
   }
 
 
