@@ -26,12 +26,9 @@ class CartManager {
   }
 
   getCart(cartId) {
-    try {
         const carts = this.getCarts();
-        return carts.find(cart => cart.id === cartId);
-      } catch (error) {
-        this.carts = [];
-      }
+        return carts.find((cart) => cart.id === cartId) || console.error("Not found");;
+    
   }
 
   addProductToCart(cid, pid) {

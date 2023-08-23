@@ -3,31 +3,52 @@ const fs = require('fs');
 class ProductManager {
   constructor(path) {
     this.products = [];
-    this.path = './productos.json';
+    this.path = 'Productos.json';
+    this.createFile();
   }
 
 
-  addProduct = async (newProduct) => {
+  createFile() {
+    if (!fs.existsSync(this.path)) {
+      this.saveProductsInJSON();
+    }
+  }
+
+  addProduct (
+    title,
+    description,
+    code,
+    price,
+    status = true,
+    stock,
+    category,
+    thumbnails
+  ){
     
     if (this.products.length === 0) {
       newProduct.id = 1;
   } else {
       newProduct.id = this.products[this.products.length - 1].id + 1;
   }
-
-    const products = await this.getProducts();
-    products.push(newProduct);
-    await fs.promises.writeFile(this.path, JSON.stringify(products))
+  const newProduct = {
+    id,
+    title,
+    description,
+    code,
+    price,
+    status,
+    stock,
+    category,
+    thumbnails,
+  };
+    this.products.push(newProduct);
+    this.saveProductsInJSON();
+    return true;
   }
 
-  getProducts = async () => {
-      try {
-        const data = await fs.readFileSync(this.path, 'utf-8');
-        this.products = JSON.parse(data);
-      } catch (error) {
-        this.products = [];
-      }
-      return this.products;
+  getProducts (){
+    this.products = JSON.parse(fs.readFileSync(this.path, "utf-8"));
+    return this.products;
   }
 
 
@@ -57,6 +78,10 @@ class ProductManager {
     this.products.splice(index, 1);
     await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2));
   };
+
+  saveProductsInJSON() {
+    fs.writeFileSync(this.path, JSON.stringify(this.products));
+  }
 
 }
 

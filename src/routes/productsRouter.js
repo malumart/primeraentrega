@@ -1,12 +1,13 @@
 const express = require('express');
 const productsRouter = express.Router();
-const ProductManager = require('./managers/ProductManager');
+const ProductManager = require('../managers/ProductManager');
 const productManager = new ProductManager();
 
 // Ruta GET /api/products
 productsRouter.get('/', (req, res) => {
   const products = productManager.getProducts();
-  res.json(products);
+  let limit = +req.query.limit;
+  res.send({ Products: limit ? products.slice(0, limit) : products });
 });
 
 // Ruta GET /api/products/:pid
@@ -25,9 +26,9 @@ productsRouter.post('/', (req, res) => {
   try {
     const newProduct = req.body;
     productManager.addProduct(newProduct);
-    res.status(201).json(newProduct);
+    res.status(201).send(newProduct);
   } catch (error) {
-    res.status(400).json({ message: 'Error adding product' });
+    res.status(400).send({ message: 'Error adding product' });
   }
 });
 
